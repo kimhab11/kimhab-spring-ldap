@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: kimhab-spring-ldap
+  ldap:
+    urls: ldap://localhost:8389   # ldap://ldap.forumsys.com:389
+    base: dc=springframework,dc=org  # dc=example,dc=com
+ # /# username: cn=read-only-admin,dc=example,dc=com
+  #//  password: password
+
+    # in memory ldap server for test
+    embedded:
+      port: 8389
+      ldif: classpath:ldap-data.ldif
+      base-dn: dc=springframework,dc=org
+
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        ldap: DEBUG
+
+
