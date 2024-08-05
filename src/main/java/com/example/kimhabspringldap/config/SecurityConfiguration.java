@@ -1,5 +1,6 @@
 package com.example.kimhabspringldap.config;
 
+import com.example.kimhabspringldap.custom.CustomLdapAuthenticationProvider;
 import com.example.kimhabspringldap.service.LdapUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,28 +17,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
     private final LdapUserService ldapUserService;
+
+    @Autowired
+    private CustomLdapAuthenticationProvider customLdapAuthenticationProvider;
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
- //   @Autowired
-  //  private CustomUserDetailsService customUserDetailsService;
-
     public SecurityConfiguration(LdapUserService ldapUserService) {
         this.ldapUserService = ldapUserService;
     }
-
-
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin();
-//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -51,33 +41,44 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(customUserDetailsService);
-//    }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.ldapAuthentication()
-               // .userDnPatterns()
-                .userDnPatterns("uid={0},ou=people") // "uid={0}";
-                 // Adjust based on your LDAP structure
-                .groupSearchBase("ou=groups") // ou=groups; ""
-                .contextSource()
-               // .url("ldap://ldap.forumsys.com:389/dc=example,dc=com")
-                .url("ldap://localhost:8389/dc=springframework,dc=org")
-                .and()
-                .passwordCompare()
-              //  .passwordEncoder(new BCryptPasswordEncoder())
-                .passwordAttribute("userPassword")
-               // .managerDn("cn=read-only-admin,dc=example,dc=com")
-               // .managerPassword("password")
-        ;
+        auth.authenticationProvider(customLdapAuthenticationProvider);
     }
+
 
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+    //    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.ldapAuthentication()
+//               // .userDnPatterns()
+//                .userDnPatterns("uid={0},ou=people") // "uid={0}";
+//                 // Adjust based on your LDAP structure
+//                .groupSearchBase("ou=groups") // ou=groups; ""
+//                .contextSource()
+//               // .url("ldap://ldap.forumsys.com:389/dc=example,dc=com")
+//                .url("ldap://localhost:8389/dc=springframework,dc=org")
+//                .and()
+//                .passwordCompare()
+//              //  .passwordEncoder(new BCryptPasswordEncoder())
+//                .passwordAttribute("userPassword")
+//               // .managerDn("cn=read-only-admin,dc=example,dc=com")
+//               // .managerPassword("password")
+//        ;
+//    }
+
+    //    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http.csrf().disable()
+//                .authorizeRequests()
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin();
+//    }
+
 }

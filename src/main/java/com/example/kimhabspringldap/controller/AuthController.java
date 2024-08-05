@@ -30,21 +30,33 @@ public class AuthController {
     @PostMapping("/login")
     public Object login(@RequestParam String username, @RequestParam String password) {
 
+        Authentication authentication;
         try {
-            // Authenticate the user
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            // Authenticate the user against LDAP
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
             // If authentication is successful, generate a token
             if (authentication.isAuthenticated()) {
+                log.info("Authentication Successfully");
                 response.put("accessToken", jwtUtil.generateToken(username));
+
+                log.info("authentication = {}", authentication.toString());
+                log.info("Principal: {}", authentication.getPrincipal().toString());
+                log.info("Authority: {}", authentication.getAuthorities().toString());
                 return response;
+
+
             } else {
                 throw new RuntimeException("Authentication failed");
             }
+
+
         } catch (AuthenticationException e) {
             log.error(e.getMessage());
             throw new RuntimeException("Bad credentials");
         }
+
+
     }
 
     @GetMapping("/user-detail")
